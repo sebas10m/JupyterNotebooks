@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
 
 # Always install latest releases
 RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir notebook openai requests
+ && pip install --no-cache-dir notebook openai requests autogen-agentchat autogen-ext[openai]
 
 # Safer defaults: non-root
 RUN useradd -ms /bin/bash appuser

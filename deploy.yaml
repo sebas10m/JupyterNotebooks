@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-notebook
+  namespace: ai-notebooks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter-notebook
+  template:
+    metadata:
+      labels:
+        app: jupyter-notebook
+    spec:
+      containers:
+        - name: notebook
+          image: ghcr.io/sebas10m/jupyter:7
+          ports:
+            - containerPort: 8888
+          env:
+            - name: OPENAI_BASE_URL
+              value: "http://llama-server.llm-inference.svc.cluster.local:8080/v1"
+            - name: OPENAI_MODEL
+              value: "llama"
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jupyter-secrets
+                  key: OPENAI_API_KEY
+            - name: JUPYTER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jupyter-secrets
+                  key: JUPYTER_TOKEN
+          args:
+            - bash
+            - -lc
+            - >
+              jupyter notebook
+              --ip=0.0.0.0
+              --port=8888
+              --no-browser
+              --NotebookApp.token=$(JUPYTER_TOKEN)
+          volumeMounts:
+            - name: notebooks
+              mountPath: /workspace
+      volumes:
+        - name: notebooks
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyter-notebook
+  namespace: ai-notebooks
+spec:
+  selector:
+    app: jupyter-notebook
+  ports:
+    - port: 80
+      targetPort: 8888
+      name: http

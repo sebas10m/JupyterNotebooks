@@ -1,0 +1,12 @@
+# ─── Secrets & keys ──────────────────────────
+*.key
+*.pem
+*-clear.yaml 
+*-clear.json         
+.env                  
+legacy/
+*.crt
+# ─── Build artefacts ─────────────────────────
+dist/
+*.tar.xz
+*.tar.gz
